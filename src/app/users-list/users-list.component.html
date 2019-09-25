@@ -1,0 +1,109 @@
+<!-- User filter -->
+<div class="container">
+  <div class="row flex-column d-lg-none d-xl-none">
+      <label class="col-lg-3 pl-2.4"
+        for="userFilter">Filter User by Name:</label>
+  </div>
+  
+  <div class="row flex-column d-lg-none d-xl-none">
+      <input id="userFilter"
+        #userFilter
+        type="search"
+        class="form-control col-lg-3 mb-2 mr-2"
+        placeholder="First Name"
+        [(ngModel)]="filterValue">
+  </div>
+
+  <!-- Remove Selected Users -->
+  <div class="row flex-column mb-2 d-lg-none d-xl-none">
+    <button type="button"
+      class="btn btn-primary"
+      [disabled]="isNoneUserSelected()"
+      (click)="removeSelected()">Remove Selected</button>
+  </div>
+
+  <!-- Download Selected Users -->
+  <csv-download class="row flex-column mb-2 d-lg-none d-xl-none" [data]="getSelectedUsers()"
+      [componentLabel]="'Download Selected'"
+      [isComponentDisabled]="isNoneUserSelected()">
+  </csv-download>
+  
+  <div class="row justify-content-around align-content-center align-items-center d-lg-none d-xl-none">
+  <div *ngFor="let user of users" class="col-xs-10 col-sm-5 col-md-5 mb-2 card">
+      <div class="card-body">
+        <h5 class="card-title">{{ user.firstName + ' ' + user.lastName }}</h5>
+        <label class="font-weight-bold">Age: <label class="font-weight-normal">{{ user.age }}</label></label>
+        <label class="font-weight-bold">Description: <summary class="font-weight-normal">{{ user.description }}</summary></label>
+
+        <div class="container">
+          <div class="row justify-content-center align-content-center align-items-center">
+            <input type="checkbox" class="mr-2" style="width: 32px; height: 32px" [(ngModel)]="user.isSelected"/>
+            <button type="button" class="btn btn-primary mr-2" (click)="goToUserDetails(user)">Details</button>
+            <button type="button" class="btn btn-primary" (click)="remove(user)">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row d-none d-lg-block d-xl-block">
+      <label class="col-lg-3 pl-2.4"
+        for="userFilter">Filter User by Name:</label>
+  </div>
+  
+  <div class="row d-none d-lg-block d-xl-block">
+    <input id="userFilter"
+      #userFilter
+      type="search"
+      class="form-control col-lg-3 mb-2 mr-2"
+      placeholder="First Name"
+      [(ngModel)]="filterValue">
+  </div>    
+
+  <div class="row d-none d-lg-block d-xl-block">
+    <!-- Remove Selected Users -->
+    <button type="button"
+        class="col-3 btn btn-primary mr-2 mb-2"
+        [disabled]="isNoneUserSelected()"
+        (click)="removeSelected()">Remove Selected
+    </button>
+
+    <!-- Download Selected Users -->
+    <csv-download [data]="getSelectedUsers()"
+        [componentLabel]="'Download Selected'"
+        [isComponentDisabled]="isNoneUserSelected()">
+    </csv-download>
+  </div>
+
+  <!-- Users -->
+  <div class="row d-none d-lg-block d-xl-block">
+    <table id="tb_users" class="table table-striped mt-2">
+      <thead style="text-align: center">
+        <tr>
+          <th scope="col">Select</th>
+          <th scope="col">Fist Name</th>
+          <th scope="col">Last Name</th>
+          <th scope="col">Age</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody style="text-align: center">
+        <tr *ngFor="let user of users">
+          <th scope="row"><input type="checkbox" [(ngModel)]="user.isSelected"/></th>
+          <th id="col_body_first_name" scope="row" class="font-weight-normal">{{ user.firstName }}</th>
+          <th id="col_body_last_name" scope="row" class="font-weight-normal">{{ user.lastName }}</th>
+          <th id="col_body_age" scope="row" class="font-weight-normal">{{ user.age }}</th>
+          <th colspan="2">
+            <button type="button" class="btn btn-primary mr-2" (click)="goToUserDetails(user)">Details</button>
+            <button type="button" class="btn btn-primary" (click)="remove(user)">Remove</button>
+          </th>
+        </tr>
+    </tbody>
+    </table>
+  </div>
+
+  <!-- Num of Users -->
+  <div class="row d-none d-lg-block d-xl-block">
+    <label><b>Users Selected: </b>{{ getNumOfSelectedUsers() }}</label>
+  </div>
+</div>
