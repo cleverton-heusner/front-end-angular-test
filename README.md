@@ -1,6 +1,11 @@
 # front-end-angular-test
 An humble project in Angular, TypeScript, Bootstrap and Protractor.
 
+# Main Requirements:
+* Google Chrome: **77**;
+* Node: **10.16.3**;
+* Npm: **6.9.0**.
+
 # How To Run:
 In the root directory of the project, execute the commands below:
 
