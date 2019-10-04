@@ -1,0 +1,15 @@
+.users-circular-progress-container {
+  margin: auto;
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  height: 3rem
+}
+
+#users-circular-progress {
+  width: 3rem;
+  height: 3rem
+}

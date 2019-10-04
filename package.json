@@ -25,6 +25,7 @@
     "@angular/platform-browser-dynamic": "~8.2.5",
     "@angular/router": "~8.2.5",
     "@ng-bootstrap/ng-bootstrap": "^5.1.1",
+    "angular-in-memory-web-api": "^0.9.0",
     "angular5-csv": "^0.2.11",
     "bootstrap": "^4.3.1",
     "ng2-bootstrap-modal": "^1.0.1",

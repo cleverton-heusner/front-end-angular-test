@@ -1,9 +1,11 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { debounceTime } from 'rxjs/operators';
-import { fromEvent } from 'rxjs';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { debounceTime, distinctUntilChanged, flatMap, tap } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 
-import { UserService } from '../shared/user.service';
+import { User } from '../shared/user.model';
+import { UsersService } from './../users.service';
+import { Routes } from '../shared/routes';
 
 @Component({
   selector: 'app-users-list',
@@ -12,52 +14,48 @@ import { UserService } from '../shared/user.service';
 })
 export class UsersListComponent implements OnInit {
 
-  private readonly PARAM_UPDATED_USER = 'updated-user';
-  private readonly WAIT_KEY_UP: number = 500;
+  private readonly SEARCH_DELAY_MLS = 500;
 
-  users: any[];
-  @ViewChild('userFilter', {static: true}) userFilterInput: ElementRef;
-  filterValue: string;
+  isUsersLoaded = false;
+  users: User[] = [];
+  searchField: FormControl;
 
-  constructor(private userService: UserService, private route: ActivatedRoute, private router: Router) { }
+  constructor(private usersService: UsersService,
+              private router: Router) { }
 
-  refreshUpdatedUserOnTable(updatedUser: any) {
-    if (updatedUser) {
-      for (let i = 0; i < this.users.length; i++) {
-        if (this.users[i].id === updatedUser.id) {
-          this.users[i] = updatedUser;
-          return;
-        }
-      }
-    }
+  buildControls() {
+    this.searchField = new FormControl();
   }
 
-  ngOnInit() {
-    this.users =  this.userService.getAll().slice();
-    const updatedUser = JSON.parse(this.route.snapshot.paramMap.get(this.PARAM_UPDATED_USER));
-    this.refreshUpdatedUserOnTable(updatedUser);
+  getUsers() {
+    this.usersService.getUsers().subscribe((users: User[]) => {
+      this.users = users;
+      this.isUsersLoaded = true;
+    });
   }
 
-  filterUserOnTable(users: any[], searchedUser: any): any[] {
-    return users.filter((user) => user.firstName.toLowerCase()
-      .includes(searchedUser.toLowerCase()) || searchedUser.toLowerCase()
-      .includes(user.firstName.toLowerCase()));
-  }
-
-  ngAfterViewInit() {
-    fromEvent(this.userFilterInput.nativeElement, 'keyup')
-      .pipe(debounceTime(this.WAIT_KEY_UP))
-      .subscribe((event: KeyboardEvent) => {
-        this.users = this.filterUserOnTable(this.userService.getAll(), this.filterValue);
-
-        if (this.filterValue === '' || this.users.length === 0) {
-          this.users = this.userService.getAll();
-        }
+  onSearchUsers() {
+    this.searchField.valueChanges
+      .pipe(
+        debounceTime(this.SEARCH_DELAY_MLS),
+        tap(() => this.isUsersLoaded = false),
+        distinctUntilChanged(),
+        flatMap((firstName: string) => this.usersService.searchUsersByFirstName(firstName)),
+      )
+      .subscribe((users: User[]) => {
+        this.users = users;
+        this.isUsersLoaded = true;
       });
   }
 
-  goToUserDetails(user: any): void {
-    this.router.navigate([UserService.URL_USER_DETAILS, JSON.stringify(user)]);
+  ngOnInit() {
+    this.buildControls();
+    this.getUsers();
+    this.onSearchUsers();
+  }
+
+  goToUserDetails(user: User): void {
+    this.router.navigate([Routes.USER_DETAILS, user.id]);
   }
 
   isNoneUserSelected(): boolean {
@@ -65,18 +63,25 @@ export class UsersListComponent implements OnInit {
   }
 
   getNumOfSelectedUsers(): number {
-    return this.users.filter((user) => user.isSelected).length;
+    return this.users.filter((user: any) => user.isSelected).length;
   }
 
-  getSelectedUsers(): any[] {
-    return this.users.filter((user) => user.isSelected);
+  getSelectedUsers(): User[] {
+    return this.users.filter((user: any) => user.isSelected);
   }
 
-  remove(userToRemove: any): void {
-    this.users = this.users.filter((user) => user.id !== userToRemove.id);
+  remove(user: User): void {
+    this.isUsersLoaded = false;
+    this.usersService.deleteUser(user.id).subscribe();
+    this.getUsers();
   }
 
   removeSelected(): void {
-    this.users = this.users.filter((user) => !user.isSelected);
+    this.isUsersLoaded = false;
+    const usersId = this.users.filter((user: any) => user.isSelected)
+      .map((user: User) => user.id);
+
+    usersId.forEach(id => this.usersService.deleteUser(id).subscribe());
+    this.getUsers();
   }
 }

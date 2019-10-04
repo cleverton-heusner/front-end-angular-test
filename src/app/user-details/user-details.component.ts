@@ -3,7 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { DialogService } from 'ng2-bootstrap-modal';
 import { ModalBasicComponent } from './../modal-basic/modal-basic.component';
 
-import { UserService } from '../shared/user.service';
+import { User } from '../shared/user.model';
+import { UsersService } from '../users.service';
+import { Routes } from '../shared/routes';
 
 @Component({
   selector: 'user-details',
@@ -14,25 +16,31 @@ export class UserDetailsComponent implements OnInit {
 
   private readonly DIALOG_TITLE = 'Confirmation';
   private readonly DIALOG_CONFIRM_MSG = 'Are you sure you want to cancel the changes to this user?';
-  private readonly PARAM_USER = 'user';
+  private readonly PARAM_USER_ID = 'id';
 
-  oldUser: any;
-  newUser: any;
+  oldUser: User;
+  newUser: User;
 
-  constructor(private route: ActivatedRoute, private router: Router, private dialogService: DialogService) { }
+  constructor(private usersService: UsersService,
+              private route: ActivatedRoute,
+              private router: Router,
+              private dialogService: DialogService) { }
 
   ngOnInit() {
-    this.newUser = JSON.parse(this.route.snapshot.paramMap.get(this.PARAM_USER));
-    this.oldUser = Object.assign({}, this.newUser);
+    const userId = +this.route.snapshot.paramMap.get(this.PARAM_USER_ID);
+    this.usersService.getUser(userId).subscribe((user: User) => {
+      this.oldUser = user;
+      this.newUser = Object.assign({}, this.oldUser);
+    });
   }
 
   isUserModified(): boolean {
-    return Object.entries(this.oldUser).toString() !==
-      Object.entries(this.newUser).toString();
+    return Object.entries(this.newUser).toString() !==
+      Object.entries(this.oldUser).toString();
   }
 
   goToUsers(): void {
-    this.router.navigate([UserService.URL_USERS]);
+    this.router.navigate([Routes.USERS]);
   }
 
   showConfirmDialog(): void {
@@ -40,7 +48,7 @@ export class UserDetailsComponent implements OnInit {
       this.dialogService.addDialog(ModalBasicComponent, {
         title: this.DIALOG_TITLE,
         message: this.DIALOG_CONFIRM_MSG})
-        .subscribe((isConfirmed: any) => {
+        .subscribe((isConfirmed: boolean) => {
             if (isConfirmed) {
               this.goToUsers();
             }
@@ -51,6 +59,7 @@ export class UserDetailsComponent implements OnInit {
   }
 
   save(): void {
-    this.router.navigate([UserService.URL_USERS, JSON.stringify(this.newUser)]);
+    this.usersService.updateUser(this.newUser).subscribe();
+    this.goToUsers();
   }
 }

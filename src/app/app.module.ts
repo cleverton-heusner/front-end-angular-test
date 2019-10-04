@@ -1,4 +1,5 @@
-import { FormsModule } from '@angular/forms';
+import { DataService } from './shared/data.service';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BootstrapModalModule } from 'ng2-bootstrap-modal';
 import { AppRoutingModule } from './app-routing.module';
@@ -10,7 +11,8 @@ import { ModalBasicComponent } from './modal-basic/modal-basic.component';
 import { CsvDownloadComponent } from './csv-download/csv-download.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { UsersListComponent } from './users-list/users-list.component';
-import { UserService } from './shared/user.service';
+import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,13 +27,12 @@ import { UserService } from './shared/user.service';
     AppRoutingModule,
     FormsModule,
     BootstrapModalModule.forRoot({container: document.body}),
+    HttpClientModule,
+    InMemoryWebApiModule.forRoot(DataService),
+    ReactiveFormsModule,
     RouterModule.forRoot([
       {
         path: '',
-        component: UsersListComponent
-      },
-      {
-        path: 'users/:updated-user',
         component: UsersListComponent
       },
       {
@@ -39,12 +40,12 @@ import { UserService } from './shared/user.service';
         component: UsersListComponent
       },
       {
-        path: 'user-details/:user',
+        path: 'user-details/:id',
         component: UserDetailsComponent
       }
     ])
   ],
-  providers: [UserService],
+  providers: [DataService],
   entryComponents: [
     ModalBasicComponent
   ],
