@@ -28,12 +28,7 @@
       [isComponentDisabled]="isNoneUserSelected()">
   </csv-download>
 
-  <div class="row justify-content-center align-items-center users-circular-progress-container">
-    <div id="users-circular-progress" class="spinner-border text-primary"
-      role="status" *ngIf=!isUsersLoaded>
-      <span class="sr-only">Loading...</span>
-    </div>
-  </div>
+  <loader (isLoaderVisibleChange)="isLoaderVisible($event)" [isLoaderVisible]="isLoaderVisible" #loader></loader>
 
   <div class="row justify-content-around align-content-center align-items-center d-lg-none d-xl-none" *ngIf=isUsersLoaded>
   <div *ngFor="let user of users" class="col-xs-10 col-sm-5 col-md-5 mb-2 card">
@@ -82,15 +77,10 @@
     </csv-download>
   </div>
 
-  <div class="row justify-content-center align-items-center users-circular-progress-container">
-    <div id="users-circular-progress" class="spinner-border text-primary"
-      role="status" *ngIf=!isUsersLoaded>
-      <span class="sr-only">Loading...</span>
-    </div>
-  </div>
+  <loader (isLoaderVisibleChange)="isLoaderVisible($event)" [isLoaderVisible]="isLoaderVisible" #loader></loader>
 
   <!-- Users -->
-  <div class="row d-none d-lg-block d-xl-block" *ngIf=isUsersLoaded>
+  <div class="row d-none d-lg-block d-xl-block" *ngIf="isUsersLoaded">
     <table id="tb_users" class="table table-striped mt-2">
       <thead style="text-align: center">
         <tr>
@@ -112,7 +102,7 @@
             <button type="button" class="btn btn-primary" (click)="remove(user)">Remove</button>
           </th>
         </tr>
-    </tbody>
+      </tbody>
     </table>
   </div>
 

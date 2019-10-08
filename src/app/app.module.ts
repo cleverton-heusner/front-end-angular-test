@@ -1,3 +1,5 @@
+import { LoaderService } from './shared/loader.service';
+import { LoaderInterceptor } from './shared/loader.interceptor';
 import { DataService } from './shared/data.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
@@ -12,7 +14,9 @@ import { CsvDownloadComponent } from './csv-download/csv-download.component';
 import { UserDetailsComponent } from './user-details/user-details.component';
 import { UsersListComponent } from './users-list/users-list.component';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ProfilerInterceptor } from './shared/profiler.interceptor';
+import { LoaderComponent } from './loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +24,8 @@ import { HttpClientModule } from '@angular/common/http';
     UsersListComponent,
     CsvDownloadComponent,
     UserDetailsComponent,
-    ModalBasicComponent
+    ModalBasicComponent,
+    LoaderComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +50,19 @@ import { HttpClientModule } from '@angular/common/http';
       }
     ])
   ],
-  providers: [DataService],
+  providers: [
+  DataService,
+  LoaderService,
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: LoaderInterceptor,
+    multi: true
+  },
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: ProfilerInterceptor,
+    multi: true
+  }],
   entryComponents: [
     ModalBasicComponent
   ],

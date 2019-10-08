@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DialogService } from 'ng2-bootstrap-modal';
 import { ModalBasicComponent } from './../modal-basic/modal-basic.component';
 
@@ -14,17 +14,17 @@ import { Routes } from '../shared/routes';
 })
 export class UserDetailsComponent implements OnInit {
 
+  constructor(private usersService: UsersService,
+              private route: ActivatedRoute,
+              private router: Router,
+              private dialogService: DialogService) { }
+
   private readonly DIALOG_TITLE = 'Confirmation';
   private readonly DIALOG_CONFIRM_MSG = 'Are you sure you want to cancel the changes to this user?';
   private readonly PARAM_USER_ID = 'id';
 
   oldUser: User;
   newUser: User;
-
-  constructor(private usersService: UsersService,
-              private route: ActivatedRoute,
-              private router: Router,
-              private dialogService: DialogService) { }
 
   ngOnInit() {
     const userId = +this.route.snapshot.paramMap.get(this.PARAM_USER_ID);
